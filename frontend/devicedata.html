@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Device Streaming Data</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .device-streaming h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+      font-size: 28px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 15px;
+    }
+
+    .controls label {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+
+    .controls select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: center;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background-color: #4a90e2;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* Side Navigation */
+    .side-nav {
+      position: fixed;
+      left: 0;
+      top: 80px;
+      bottom: 0;
+      width: 220px;
+      background: #2c3e50;
+      padding: 2rem 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      z-index: 900;
+    }
+
+    .nav-section {
+      list-style: none;
+    }
+
+    .nav-section li {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-section a {
+      display: block;
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 1rem 1rem;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      font-weight: 400;
+    }
+
+    .nav-section a:hover {
+      background: rgba(52, 152, 219, 0.1);
+      border-left-color: #3498db;
+      color: #3498db;
+    }
+
+    .nav-section a.admin-only {
+      background: rgba(228, 231, 233, 0.05);
+    }
+
+    .error-message {
+      color: red;
+      text-align: left;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body class="admin-shipments-page">
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="logo-section">
+            <img src="assets/Ship2.jpg" class="nav-logo" alt="SCMLITE" />
+            <span class="brand-title">SCMLITE</span>
+        </div>
+    </div>
+
+    <!-- Side Navigation -->
+    <div class="side-nav">
+        <ul class="nav-section">
+            <li><a href="/dashboard">🏠 Dashboard</a></li>
+            <li><a href="/create-shipment">➕ New Shipment</a></li>
+            <li><a href="/shipments" class="admin-only">📦 Shipments</a></li>
+            <!-- <li><a href="/my-shipments" class="user-only">📦 My Shipments</a></li> -->
+            <li><a href="/manage-users" class="admin-only">👥 Manage Users</a></li>
+            <li><a href="/account">⚙️ Account</a></li>
+            <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+        </ul>
+    </div>
+<body>
+
+  <div class="container">
+    <div class="device-streaming">
+      <h2>📡 Device Streaming Data</h2>
+
+      <div class="controls">
+        <label for="limitSelect">Show Top:</label>
+        <select id="limitSelect">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+
+      <div class="table-responsive">
+        <table id="deviceTable" class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Battery Level</th>
+              <th>Device ID</th>
+              <th>Temperature</th>
+              <th>Route From</th>
+              <th>Route To</th>
+            </tr>
+          </thead>
+          <tbody id="deviceTableBody">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+      <div class="error-message" id="errorMessage"></div>
+    </div>
+  </div>
+
+  <script>
+  const limitSelect = document.getElementById("limitSelect");
+
+  async function fetchDeviceData() {
+    try {
+      const response = await fetch("/api/devicedata", {
+        method: "GET",
+        credentials: "include"
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = "/login"; // Redirect if not authorized
+        return;
+      }
+
+      if (!response.ok) throw new Error("Network response was not ok");
+
+      const data = await response.json();
+      const limit = parseInt(limitSelect.value);
+      const limitedData = data.slice(0, limit);
+
+      const tableBody = document.getElementById("deviceTableBody");
+      const errorMsg = document.getElementById("errorMessage");
+      tableBody.innerHTML = ""; // Clear old rows
+      errorMsg.innerText = "";
+
+      if (limitedData.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5">No data found</td></tr>`;
+        return;
+      }
+
+      limitedData.forEach(item => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${item.Battery_Level ?? "N/A"}</td>
+          <td>${item.Device_ID ?? "N/A"}</td>
+          <td>${item.First_Sensor_temperature ?? "N/A"}</td>
+          <td>${item.Route_From ?? "N/A"}</td>
+          <td>${item.Route_To ?? "N/A"}</td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+    } catch (err) {
+      document.getElementById("errorMessage").innerText = "⚠️ Failed to load data.";
+      console.error("Fetch error:", err);
+    }
+  }
+
+  // Event listener to refetch on dropdown change
+  limitSelect.addEventListener("change", fetchDeviceData);
+
+  fetchDeviceData();                   // Initial fetch
+  setInterval(fetchDeviceData, 10000); // Refresh every 10 seconds
+</script>
+
+
+</body>
+</html>

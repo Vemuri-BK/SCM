@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Manage Shipments</title>
+  <link rel="icon" type="image/png" href="assets/Exafluence-favicon.png" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      color: #2c3e50;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* Side Navigation */
+    .side-nav {
+      position: fixed;
+      left: 0;
+      top: 80px;
+      bottom: 0;
+      width: 260px;
+      background: #2c3e50;
+      padding: 2rem 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      z-index: 900;
+    }
+
+    .nav-section {
+      list-style: none;
+    }
+
+    .nav-section li {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-section a {
+      display: block;
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 1rem 2rem;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      font-weight: 500;
+    }
+
+    .nav-section a:hover {
+      background: rgba(52, 152, 219, 0.1);
+      border-left-color: #3498db;
+      color: #3498db;
+    }
+
+    .nav-section a.admin-only {
+      background: rgba(228, 231, 233, 0.05);
+    }
+
+    /* Main Content */
+    .content {
+      margin-left: 260px;
+      margin-top: 80px;
+      padding: 2rem;
+      min-height: calc(100vh - 80px);
+    }
+
+    .page-wrapper {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .admin-shipments-wrapper {
+      padding: 2rem;
+    }
+
+    h2 {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+    }
+
+    /* Table Styles */
+    #shipments-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    #shipments-table thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    #shipments-table th {
+      padding: 1.2rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    #shipments-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #ecf0f1;
+      vertical-align: middle;
+      font-size: 0.95rem;
+    }
+
+    #shipments-table tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    #shipments-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    #shipments-table tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    #shipments-table tbody tr:nth-child(even):hover {
+      background: #f0f0f0;
+    }
+
+    /* Button Styles */
+    .btn-edit, .btn-delete {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      margin-right: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-edit {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: linear-gradient(135deg, #2980b9, #1f4e79);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-delete {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: linear-gradient(135deg, #c0392b, #a93226);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+    }
+
+    /* Modal Styles */
+    #editModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1100;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-content h3 {
+      color: #2c3e50;
+      margin-bottom: 2rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .modal-content label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #34495e;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .modal-content select,
+    .modal-content textarea {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1.5rem;
+      border: 2px solid #ecf0f1;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      background: #fafafa;
+    }
+
+    .modal-content select:focus,
+    .modal-content textarea:focus {
+      outline: none;
+      border-color: #3498db;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 2rem;
+    }
+
+    .modal-footer .btn-edit,
+    .modal-footer .btn-delete {
+      margin-right: 0;
+      padding: 0.8rem 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    /* Message Display */
+    #msg {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 6px;
+      color: white;
+      font-weight: 500;
+      display: none;
+      z-index: 1200;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    #msg.success {
+      background: linear-gradient(135deg, #27ae60, #219a52);
+    }
+
+    #msg.error {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+    }
+
+    /* Status Badge Styles */
+    .status-badge {
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .status-in-transit {
+      background: #cff4fc;
+      color: #055160;
+      border: 1px solid #b3e5fc;
+    }
+
+    .status-delivered {
+      background: #d1e7dd;
+      color: #0a3622;
+      border: 1px solid #a3cfbb;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .side-nav {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .content {
+        margin-left: 0;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+
+      #shipments-table {
+        font-size: 0.85rem;
+      }
+
+      #shipments-table th,
+      #shipments-table td {
+        padding: 0.7rem 0.5rem;
+      }
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #7f8c8d;
+      font-style: italic;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #7f8c8d;
+    }
+
+    .empty-state h3 {
+      margin-bottom: 1rem;
+      color: #95a5a6;
+    }
+  </style>
+</head>
+<body class="admin-shipments-page">
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="logo-section">
+            <img src="assets/Ship2.jpg" class="nav-logo" alt="SCMLITE" />
+            <span class="brand-title">SCMLITE</span>
+        </div>
+    </div>
+
+    <!-- Side Navigation -->
+    <div class="side-nav">
+        <ul class="nav-section">
+            <li><a href="/dashboard">🏠 Dashboard</a></li>
+            <li><a href="/create-shipment">➕ New Shipment</a></li>
+            <li><a href="/shipments" class="admin-only">📦 Shipments</a></li>
+            <!-- <li><a href="/my-shipments" class="user-only">📦 My Shipments</a></li> -->
+            <li><a href="/manage-users" class="admin-only">👥 Manage Users</a></li>
+            <li><a href="/account">⚙️ Account</a></li>
+            <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="page-wrapper admin-shipments-wrapper">
+            <h2>📦 Shipment Management Dashboard</h2>
+            <table id="shipments-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Shipment No.</th>
+                        <th>Route</th>
+                        <th>Goods</th>
+                        <th>Device</th>
+                        <th>Delivery Date</th>
+                        <th>Status</th>
+                        <th>Created By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="shipment-body">
+                    <tr>
+                        <td colspan="9" class="loading">Loading shipments...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Message Display -->
+    <div id="msg"></div>
+
+    <!-- Edit Modal -->
+    <div id="editModal">
+        <div class="modal-content">
+            <h3>Edit Shipment Details</h3>
+            <form id="editForm">
+                <input type="hidden" id="editId" />
+                
+                <label for="editStatus">Shipment Status</label>
+                <select id="editStatus" required>
+                    <option value="">Select Shipment Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Transit">In Transit</option>
+                    <option value="Delivered">Delivered</option>
+                </select>
+                
+                <label for="editRoute">Route</label>
+                <select id="editRoute" required>
+                    <option value="">Select Route</option>
+                    <option value="north">North</option>
+                    <option value="south">South</option>
+                    <option value="east">East</option>
+                    <option value="west">West</option>
+                </select>
+                
+                <label for="editDescription">Description</label>
+                <textarea id="editDescription" rows="3" placeholder="Enter shipment description..."></textarea>
+                
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal()" class="btn-delete">Cancel</button>
+                    <button type="submit" class="btn-edit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    const tableBody = document.getElementById("shipment-body");
+    const modal = document.getElementById("editModal");
+    const msgDiv = document.getElementById("msg");
+
+    function showMessage(message, type = 'success') {
+      msgDiv.textContent = message;
+      msgDiv.className = type;
+      msgDiv.style.display = 'block';
+      setTimeout(() => {
+        msgDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    function formatStatus(status) {
+      const statusClass = status.toLowerCase().replace(' ', '-');
+      return `<span class="status-badge status-${statusClass}">${status}</span>`;
+    }
+
+    async function fetchShipments() {
+      try {
+        tableBody.innerHTML = '<tr><td colspan="9" class="loading">Loading shipments...</td></tr>';
+
+        const res = await fetch("/api/shipments", {
+          method: "GET",
+          credentials: "include"
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          tableBody.innerHTML = "";
+
+          if (data.length === 0) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="9" class="empty-state">
+                  <h3>No Shipments Found</h3>
+                  <p>No shipments have been created yet.</p>
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          data.forEach((shipment, index) => {
+            const row = `
+              <tr>
+                <td><strong>${index + 1}</strong></td>
+                <td><strong>${shipment.shipment_number}</strong></td>
+                <td>${shipment.route}</td>
+                <td>${shipment.goods_type}</td>
+                <td>${shipment.device}</td>
+                <td>${shipment.delivery_date?.split("T")[0] || 'N/A'}</td>
+                <td>${formatStatus(shipment.status)}</td>
+                <td>${shipment.created_by}</td>
+                <td>
+                  <button class="btn-edit" onclick='openEdit(${JSON.stringify(shipment)})'>Edit</button>
+                  <button class="btn-delete" onclick='deleteShipment("${shipment.id}")'>Delete</button>
+                </td>
+              </tr>
+            `;
+            tableBody.insertAdjacentHTML("beforeend", row);
+          });
+
+          showMessage(`${data.length} shipments loaded successfully`);
+        } else {
+          tableBody.innerHTML = '<tr><td colspan="9" class="empty-state">Failed to load shipments</td></tr>';
+          showMessage(data.detail || "Failed to load shipments", 'error');
+        }
+      } catch (error) {
+        tableBody.innerHTML = '<tr><td colspan="9" class="empty-state">Error loading shipments</td></tr>';
+        showMessage("Network error occurred", 'error');
+      }
+    }
+
+    function openEdit(s) {
+      document.getElementById("editId").value = s.id;
+      document.getElementById("editStatus").value = s.status;
+      document.getElementById("editRoute").value = s.route;
+      document.getElementById("editDescription").value = s.description || '';
+      modal.style.display = "flex";
+    }
+
+    function closeModal() {
+      modal.style.display = "none";
+      document.getElementById("editForm").reset();
+    }
+
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.getElementById("editForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const id = document.getElementById("editId").value;
+      const status = document.getElementById("editStatus").value;
+      const route = document.getElementById("editRoute").value;
+      const description = document.getElementById("editDescription").value;
+
+      try {
+        const res = await fetch(`/api/shipments/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({ status, route, description }),
+        });
+
+        if (res.ok) {
+          closeModal();
+          showMessage("Shipment updated successfully");
+          fetchShipments();
+        } else {
+          const error = await res.json();
+          showMessage(error.detail || "Failed to update shipment", 'error');
+        }
+      } catch (error) {
+        showMessage("Network error occurred", 'error');
+      }
+    });
+
+    async function deleteShipment(id) {
+      if (!confirm("Are you sure you want to delete this shipment? This action cannot be undone.")) return;
+
+      try {
+        const res = await fetch(`/api/shipments/${id}`, {
+          method: "DELETE",
+          credentials: "include"
+        });
+
+        if (res.ok) {
+          showMessage("Shipment deleted successfully");
+          fetchShipments();
+        } else {
+          const error = await res.json();
+          showMessage(error.detail || "Delete failed", 'error');
+        }
+      } catch (error) {
+        showMessage("Network error occurred", 'error');
+      }
+    }
+
+    async function logout() {
+      if (confirm("Are you sure you want to logout?")) {
+        try {
+          const res = await fetch("/api/logout", {
+            method: "POST",
+            credentials: "include"
+          });
+
+          if (res.ok) {
+            window.location.href = "/login";
+          } else {
+            alert("Logout failed");
+          }
+        } catch (err) {
+          alert("Network error");
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchShipments);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.style.display === 'flex') {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

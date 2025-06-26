@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Shipment | EXF</title>
+  <link rel="icon" type="image/png" href="assets/Exafluence-favicon.png" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #2c3e50;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: white;
+      padding: 4px;
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 1px;
+    }
+
+    /* Side Navigation */
+    .side-nav {
+      position: fixed;
+      left: 0;
+      top: 80px;
+      width: 280px;
+      height: calc(100vh - 80px);
+      background: white;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+      padding: 2rem 0;
+      overflow-y: auto;
+      border-right: 1px solid #e9ecef;
+    }
+
+    .nav-section {
+      list-style: none;
+      padding: 0 1rem;
+    }
+
+    .nav-section li {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-section a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      color: #495057;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      gap: 0.75rem;
+    }
+
+    .nav-section a:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: translateX(4px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Main Content */
+    .shipment-create-content {
+      margin-left: 280px;
+      margin-top: 80px;
+      padding: 3rem;
+      min-height: calc(100vh - 80px);
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      max-width: 1200px;
+      margin: 0 auto;
+      border: 1px solid #e9ecef;
+    }
+
+    .form-card h2 {
+      font-size: 2rem;
+      color: #2c3e50;
+      margin-bottom: 2rem;
+      text-align: center;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    .form-card h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+      margin-bottom: 1.5rem;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 1rem center;
+      background-repeat: no-repeat;
+      background-size: 1rem;
+      padding-right: 3rem;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 1rem 2.5rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      min-width: 160px;
+    }
+
+    .btn:not(.cancel) {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn:not(.cancel):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:not(.cancel):active {
+      transform: translateY(0);
+    }
+
+    .btn.cancel {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn.cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+    }
+
+    #msg {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+
+    #msg.show {
+      display: block;
+    }
+
+    /* Required field indicator */
+    label:after {
+      content: " *";
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .side-nav {
+        width: 250px;
+      }
+      
+      .shipment-create-content {
+        margin-left: 250px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .side-nav {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .shipment-create-content {
+        margin-left: 0;
+        padding: 2rem 1rem;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .form-card {
+        padding: 2rem;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* Loading state */
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* Success/Error states */
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-card {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Focus indicators for accessibility */
+    button:focus,
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid #667eea;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <div class="logo-section">
+      <img src="assets/Ship2.jpg" class="nav-logo" alt="SCMLITE" />
+      <span class="brand-title">SCMLITE</span>
+    </div>
+  </div>
+
+  <!-- Side Navigation -->
+  <div class="side-nav">
+    <ul class="nav-section">
+      <li><a href="/dashboard">🏠 Dashboard</a></li>
+      <li><a href="/create-shipment">➕ New Shipment</a></li>
+      <li><a href="/shipments" class="admin-only">📦 Shipments</a></li>
+      <li><a href="/my-shipments" class="user-only">📦 My Shipments</a></li>
+      <li><a href="/manage-users" class="admin-only">👥 Manage Users</a></li>
+      <li><a href="/account">⚙️ Account</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
+  </div>
+
+  <div class="shipment-create-content">
+    <div class="form-card">
+      <h2>Create New Shipment</h2>
+      <form id="shipmentForm">
+        <div class="form-grid">
+          <div>
+            <label>Shipment Number</label>
+            <input type="text" name="shipment_number" required />
+            
+            <label>Route Details</label>
+            <select name="route" required>
+              <option value="">Select Route</option>
+              <option value="north">North</option>
+              <option value="south">South</option>
+              <option value="east">East</option>
+              <option value="west">West</option>
+            </select>
+            
+            <label>Device</label>
+            <select name="device" required>
+              <option value="">Select Device</option>
+              <option value="sensor-a">Sensor A</option>
+              <option value="sensor-b">Sensor B</option>
+            </select>
+            
+            <label>PO Number</label>
+            <input type="text" name="po_number" required />
+            
+            <label>NDC Number</label>
+            <input type="text" name="ndc_number" required />
+            
+            <label>Serial Number of Goods</label>
+            <input type="text" name="serial_number" required />
+          </div>
+
+          <div>
+            <label>Container Number</label>
+            <input type="text" name="container_number" required />
+            
+            <label>Goods Type</label>
+            <select name="goods_type" required>
+              <option value="">Select Goods</option>
+              <option value="pharma">Pharma</option>
+              <option value="electronics">Electronics</option>
+            </select>
+            
+            <label>Expected Delivery Date</label>
+            <input type="date" name="delivery_date" required />
+            
+            <label>Delivery Number</label>
+            <input type="text" name="delivery_number" required />
+            
+            <label>Batch ID</label>
+            <input type="text" name="batch_id" required />
+            
+            <label>Shipment Description</label>
+            <textarea name="description" rows="3" required placeholder="Enter detailed description of the shipment..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn">Create Shipment</button>
+          <button type="reset" class="btn cancel">Clear Details</button>
+        </div>
+        <div id="msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  document.getElementById("shipmentForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const msg = document.getElementById("msg");
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Creating...";
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    try {
+      const res = await fetch("/api/shipments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // ✅ Cookie-based JWT
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.status === 201) {
+        msg.textContent = "Shipment created successfully!";
+        msg.className = "show success";
+        form.reset();
+      } else if (res.status === 401) {
+        msg.textContent = "Session expired. Please log in again.";
+        msg.className = "show error";
+      } else {
+        msg.textContent = result.detail || "Failed to create shipment.";
+        msg.className = "show error";
+      }
+    } catch (err) {
+      msg.textContent = "Server error. Please try again.";
+      msg.className = "show error";
+      console.error(err);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Create Shipment";
+    }
+  });
+
+  function logout() {
+    fetch("/logout", { method: "POST", credentials: "include" })
+      .then(() => window.location.href = "/login")
+      .catch(err => console.error("Logout failed:", err));
+  }
+
+  document.getElementById("shipmentForm").addEventListener("input", () => {
+    const msg = document.getElementById("msg");
+    msg.className = "";
+    msg.textContent = "";
+  });
+</script>
+
+</body>
+</html>

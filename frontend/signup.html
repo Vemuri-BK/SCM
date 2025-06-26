@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up | EXF</title>
+  <link rel="icon" type="image/jpg" href="assets/ship.jpg" />
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .signup-page {
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .form-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 10px 35px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+      border-radius: 20px 20px 0 0;
+    }
+
+    .logo-bar {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      max-height: 60px;
+      max-width: 200px;
+      height: auto;
+      width: auto;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+    }
+
+    h2 {
+      text-align: center;
+      color: #2d3748;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 16px;
+      background: #fff;
+      color: #2d3748;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .input-group input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .input-group input::placeholder {
+      color: #a0aec0;
+      font-weight: 400;
+    }
+
+    .input-group input:not(:placeholder-shown) {
+      border-color: #cbd5e0;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 24px;
+      color: #718096;
+      font-size: 14px;
+    }
+
+    .login-link a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .login-link a:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+
+    .message {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      min-height: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .message:not(:empty) {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .message:empty {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    /* Floating particles background effect */
+    .signup-page::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: float 20s linear infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-50px, -50px) rotate(360deg); }
+    }
+
+    /* Responsive design */
+    @media (max-width: 480px) {
+      .form-card {
+        padding: 30px 25px;
+        margin: 10px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      .input-group input, .btn {
+        padding: 14px 16px;
+        font-size: 15px;
+      }
+    }
+
+    /* Success and error message styles */
+    .message[style*="green"] {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+      border: none;
+    }
+
+    .message[style*="red"] {
+      background: linear-gradient(135deg, #f56565, #e53e3e);
+      color: white;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-page">
+    <div class="form-card">
+      <div class="logo-bar">
+        <img src="assets/Ship2.jpg" alt="EXF Logo" class="logo" />
+      </div>
+
+      <h2>Create Account</h2>
+      <p class="subtitle">Join us and start your journey today</p>
+      
+      <form id="signupForm">
+        <div class="input-group">
+          <input type="text" id="username" placeholder="Username" required />
+        </div>
+        <div class="input-group">
+          <input type="email" id="email" placeholder="Email Address" required />
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" placeholder="Password" required />
+        </div>
+        <div class="input-group">
+          <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+        </div>
+        <button type="submit" class="btn">Create Account</button>
+      </form>
+      
+      <p class="login-link">Already have an account? <a href="/login">log in here</a></p>
+      <div id="msg" class="message"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const msgBox = document.getElementById("msg");
+
+      if (password !== confirmPassword) {
+        msgBox.textContent = "Passwords do not match.";
+        msgBox.style.color = "blue";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username,
+            email,
+            password
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.status === 201) {
+          msgBox.textContent = "Signup successful! Redirecting to login...";
+          msgBox.style.color = "green";
+          setTimeout(() => window.location.href = "/login", 1500);
+        } else {
+          msgBox.textContent = data.detail || "Signup failed.";
+          msgBox.style.color = "red";
+        }
+      } catch (err) {
+        console.error(err);
+        msgBox.textContent = "Something went wrong.";
+        msgBox.style.color = "red";
+      }
+    });
+
+    fetch("/api/clear-token", { method: "GET" });
+  </script>
+</body>
+</html>

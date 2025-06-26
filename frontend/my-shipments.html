@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Shipments | EXF</title>
+  <link rel="icon" type="image/png" href="assets/Exafluence-favicon.png" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2c3e50;
+      letter-spacing: 0.5px;
+    }
+
+    /* Sidebar Navigation */
+    .side-nav {
+      position: fixed;
+      left: 0;
+      top: 80px;
+      width: 280px;
+      height: calc(100vh - 80px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 2rem 0;
+      box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      list-style: none;
+      padding: 0 1rem;
+    }
+
+    .nav-section li {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-section a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      color: #555;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-section a:hover {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .nav-section a:hover::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+      pointer-events: none;
+    }
+
+    /* Main Content */
+    .content {
+      margin-left: 280px;
+      margin-top: 80px;
+      padding: 3rem;
+      min-height: calc(100vh - 80px);
+    }
+
+    .content h2 {
+      font-size: 2.5rem;
+      color: white;
+      margin-bottom: 2rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Page Wrapper */
+    .page-wrapper {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideInUp 0.6s ease-out;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .page-wrapper h2 {
+      font-size: 2rem;
+      color: #2c3e50;
+      margin-bottom: 2rem;
+      text-shadow: none;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    .page-wrapper h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+
+    /* Table Styles */
+    #shipments-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    #shipments-table thead {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    #shipments-table th,
+    #shipments-table td {
+      padding: 1.25rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    #shipments-table th {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.85rem;
+      position: relative;
+    }
+
+    #shipments-table tbody tr {
+      transition: all 0.3s ease;
+      opacity: 0;
+      animation: fadeInRow 0.5s ease-out forwards;
+    }
+
+    #shipments-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    #shipments-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    #shipments-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    #shipments-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    #shipments-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes fadeInRow {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    #shipments-table tbody tr:hover {
+      background: rgba(102, 126, 234, 0.05);
+      transform: translateX(5px);
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+    }
+
+    #shipments-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Status Badges */
+    #shipments-table td:last-child {
+      position: relative;
+    }
+
+    #shipments-table td:last-child::before {
+      content: '';
+      position: absolute;
+      left: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #27ae60;
+      box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+    }
+
+    /* Message Styles */
+    #msg {
+      text-align: center;
+      padding: 2rem;
+      font-size: 1.1rem;
+      color: white;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-top: 2rem;
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+    }
+
+    .loading::after {
+      content: '';
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(102, 126, 234, 0.3);
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6c757d;
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #495057;
+    }
+
+    .empty-state p {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .side-nav {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .content {
+        margin-left: 0;
+        padding: 2rem 1rem;
+      }
+
+      .content h2 {
+        font-size: 2rem;
+      }
+
+      .page-wrapper {
+        padding: 1.5rem;
+        margin: 0;
+      }
+
+      .page-wrapper h2 {
+        font-size: 1.5rem;
+      }
+
+      #shipments-table {
+        font-size: 0.875rem;
+      }
+
+      #shipments-table th,
+      #shipments-table td {
+        padding: 0.75rem 0.5rem;
+      }
+
+      /* Stack table on mobile */
+      #shipments-table,
+      #shipments-table thead,
+      #shipments-table tbody,
+      #shipments-table th,
+      #shipments-table td,
+      #shipments-table tr {
+        display: block;
+      }
+
+      #shipments-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+
+      #shipments-table tr {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: white;
+      }
+
+      #shipments-table td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+      }
+
+      #shipments-table td:before {
+        content: attr(data-label) ": ";
+        position: absolute;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+        color: #667eea;
+      }
+    }
+
+    /* Hover effects for better UX */
+    .page-wrapper:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    /* Shimmer effect for loading state */
+    .shimmer {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+  </style>
+</head>
+<body class="my-shipments-page">
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <div class="logo-section">
+      <img src="assets/exf_company_logo.png" class="nav-logo" alt="EXF" />
+      <span class="brand-title">EXF</span>
+    </div>
+  </div>
+
+  <!-- Side Navigation -->
+  <div class="side-nav">
+    <ul class="nav-section">
+      <li><a href="/dashboard">🏠 Dashboard</a></li>
+      <li><a href="/create-shipment">➕ New Shipment</a></li>
+      <li><a href="/my-shipments" class="user-only">📦 My Shipments</a></li>
+      <li><a href="/account">⚙️ Account</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <h2>My Shipments</h2>
+
+    <div class="page-wrapper my-shipments-wrapper">
+      <h2>📦 Your Shipment History</h2>
+      <table id="shipments-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Shipment No.</th>
+            <th>Route</th>
+            <th>Sensor</th>
+            <th>Goods Type</th>
+            <th>Delivery Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="shipment-body">
+          <tr><td colspan="7"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="msg"></div>
+  </div>
+
+<script>
+  async function loadShipments() {
+    const msg = document.getElementById("msg");
+    const table = document.getElementById("shipments-table");
+    const body = document.getElementById("shipment-body");
+
+    // Clear previous state
+    msg.innerHTML = "";
+    table.style.display = "none";
+    body.innerHTML = '<tr class="loading"><td colspan="7"></td></tr>'; // Show loading spinner
+
+    console.log("Attempting to load shipments..."); // Add this line
+
+    try {
+      console.log("Fetching from /api/my-shipments..."); // Add this line
+      const res = await fetch("/api/my-shipments", {
+        method: "GET",
+        credentials: "include"
+      });
+      console.log("Received response from API:", res); // Add this line
+
+      // Check if the server responded with an error status (like 4xx or 5xx)
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("API response not OK:", res.status, errorText); // Add this line
+        throw new Error(`Server responded with status ${res.status}: ${errorText || 'No error details provided.'}`);
+      }
+
+      const data = await res.json();
+      console.log("API data received:", data); // Add this line
+
+      if (data.length > 0) {
+        table.style.display = "table";
+        body.innerHTML = ""; // Clear loading spinner
+
+        data.forEach((shipment, index) => {
+          const row = document.createElement("tr");
+          const deliveryDate = (shipment.delivery_date || "").split("T")[0] || "-";
+
+          row.innerHTML = `
+            <td data-label="#">${index + 1}</td>
+            <td data-label="Shipment No.">${shipment.shipment_number || "N/A"}</td>
+            <td data-label="Route">${shipment.route || "-"}</td>
+            <td data-label="Sensor">${shipment.device || "-"}</td>
+            <td data-label="Goods Type">${shipment.goods_type || "-"}</td>
+            <td data-label="Delivery Date">${deliveryDate}</td>
+            <td data-label="Status">${shipment.status || "Pending"}</td>
+          `;
+          body.appendChild(row);
+        });
+      } else {
+        table.style.display = "none";
+        msg.innerHTML = `
+          <div class="empty-state">
+            <h3>No Shipments Found</h3>
+            <p>You haven't created any shipments yet.</p>
+          </div>
+        `;
+      }
+    } catch (err) {
+      body.innerHTML = "";
+      table.style.display = "none";
+      msg.innerHTML = `<div class="empty-state" style="color: red;"><strong>Error:</strong> ${err.message}</div>`;
+      console.error("Detailed error in loadShipments:", err); // Keep this, it's already helpful
+    }
+  }
+
+  async function logout() {
+    console.log("Logging out..."); // Add this line
+    try {
+      const res = await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include"
+      });
+
+      if (res.ok) {
+        window.location.href = "/login";
+      } else {
+        alert("Logout failed");
+      }
+    } catch (err) {
+      alert("Network error during logout");
+      console.error("Logout error:", err); // Add this line
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadShipments);
+</script>
+
+</body>
+</html>

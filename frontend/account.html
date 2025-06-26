@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Account | EXF</title>
+  <link rel="icon" href="/assets/Exafluence-favicon.png" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2c3e50;
+      letter-spacing: 0.5px;
+    }
+
+    /* Sidebar Navigation */
+    .side-nav {
+      position: fixed;
+      left: 0;
+      top: 80px;
+      width: 280px;
+      height: calc(100vh - 80px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 2rem 0;
+      box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      list-style: none;
+      padding: 0 1rem;
+    }
+
+    .nav-section li {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-section a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      color: #555;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-section a:hover {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .nav-section a:hover::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+      pointer-events: none;
+    }
+
+    /* Account Container */
+    .account-container {
+      margin-left: 280px;
+      margin-top: 80px;
+      padding: 3rem;
+      min-height: calc(100vh - 80px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .account-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 3rem;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      animation: slideInUp 0.6s ease-out;
+    }
+
+    .account-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .account-card h2 {
+      font-size: 2.25rem;
+      color: #2c3e50;
+      margin-bottom: 2.5rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .account-card h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+
+    .account-field {
+      margin-bottom: 2rem;
+      position: relative;
+      animation: fadeInLeft 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .account-field:nth-child(2) { animation-delay: 0.1s; }
+    .account-field:nth-child(3) { animation-delay: 0.2s; }
+    .account-field:nth-child(4) { animation-delay: 0.3s; }
+    .account-field:nth-child(5) { animation-delay: 0.4s; }
+
+    @keyframes fadeInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .account-field label {
+      display: block;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      position: relative;
+    }
+
+    .account-field label::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      opacity: 0.7;
+    }
+
+    .account-field span {
+      display: block;
+      padding: 1.25rem 1.5rem;
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      color: #2c3e50;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .account-field span::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .account-field:hover span {
+      border-color: #667eea;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    }
+
+    .account-field:hover span::before {
+      left: 100%;
+    }
+
+    /* Button Styles */
+    .btn-back {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      position: relative;
+      overflow: hidden;
+      margin: 2rem auto 0;
+      animation: fadeInUp 0.6s ease-out 0.5s both;
+    }
+
+    .btn-back::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transition: all 0.6s ease;
+      transform: translate(-50%, -50%);
+    }
+
+    .btn-back:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn-back:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-back:active {
+      transform: translateY(-1px);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Role Badge Styling */
+    #accRole {
+      position: relative;
+    }
+
+    #accRole::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 15px;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      background: #27ae60;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(102, 126, 234, 0.3);
+      border-radius: 50%;
+      border-top-color: #667eea;
+      animation: spin 1s ease-in-out infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .side-nav {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .account-container {
+        margin-left: 0;
+        padding: 2rem 1rem;
+      }
+
+      .account-card {
+        padding: 2rem;
+        margin: 1rem;
+      }
+
+      .account-card h2 {
+        font-size: 1.75rem;
+      }
+
+      .account-field span {
+        padding: 1rem;
+        font-size: 1rem;
+      }
+
+      .btn-back {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Glassmorphism Enhancement */
+    .account-card {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    /* Subtle Animation for the entire card */
+    .account-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    /* Add a subtle pulse animation to the role indicator */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    #accRole::after {
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body class="account-page">
+
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <div class="logo-section">
+      <img src="/assets/Ship2.jpg" class="nav-logo" alt="SCMLITE" />
+      <span class="brand-title">SCMLITE</span>
+    </div>
+  </div>
+
+  <!-- Sidebar Navigation -->
+  <div class="side-nav">
+    <ul class="nav-section">
+      <li><a href="/dashboard">🏠 Dashboard</a></li>
+      <li><a href="/create-shipment">➕ New Shipment</a></li>
+      <li><a href="/shipments" class="admin-only">📦 Shipments</a></li>
+      <li><a href="/my-shipments" class="user-only">📦 My Shipments</a></li>
+      <li><a href="/manage-users" class="admin-only">👥 Manage Users</a></li>
+      <li><a href="/account">⚙️ Account</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
+  </div>
+
+  <div class="account-container">
+    <div class="account-card">
+      <h2>👤 Account Details</h2>
+      <div class="account-field">
+        <label>Username</label>
+        <span id="accUsername">-</span>
+      </div>
+      <div class="account-field">
+        <label>Email</label>
+        <span id="accEmail">-</span>
+      </div>
+      <div class="account-field">
+        <label>Role</label>
+        <span id="accRole">-</span>
+      </div>
+      <div class="account-field">
+        <label>Created At</label>
+        <span id="accCreated">-</span>
+      </div>
+        <div style="margin-top: 20px;">
+            <button onclick="window.location.href='/dashboard'" class="btn-back">⬅ Back to Dashboard</button>
+        </div>
+    </div>
+  </div>
+
+  <script>
+  async function loadAccount() {
+    try {
+      const res = await fetch("/api/account", {
+        credentials: "include"  // ✅ Send cookies
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert("Unauthorized or invalid token.");
+        return window.location.href = "/login";
+      }
+
+      document.getElementById("accUsername").textContent = data.username;
+      document.getElementById("accEmail").textContent = data.email;
+      document.getElementById("accRole").textContent = data.role;
+      document.getElementById("accCreated").textContent = data.created_at?.split("T")[0] || "-";
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load account details.");
+    }
+  }
+
+  function logout() {
+    fetch("/logout", {
+      method: "POST",
+      credentials: "include"
+    }).then(() => {
+      window.location.href = "/login";
+    }).catch(err => {
+      console.error("Logout failed:", err);
+    });
+  }
+
+  loadAccount();
+</script>
+</body>
+
+</body>
+</html>

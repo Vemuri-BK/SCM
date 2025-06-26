@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin | Manage Users</title>
+  <link rel="icon" href="/assets/Exafluence-favicon.png" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2c3e50;
+      letter-spacing: 0.5px;
+    }
+
+    /* Sidebar Navigation */
+    .side-nav {
+      position: fixed;
+      left: 0;
+      top: 80px;
+      width: 280px;
+      height: calc(100vh - 80px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 2rem 0;
+      box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      list-style: none;
+      padding: 0 1rem;
+    }
+
+    .nav-section li {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-section a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      color: #555;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-section a:hover {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .nav-section a:hover::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+      pointer-events: none;
+    }
+
+    /* Main Content */
+    .content {
+      margin-left: 280px;
+      margin-top: 80px;
+      padding: 3rem;
+      min-height: calc(100vh - 80px);
+    }
+
+    .content h2 {
+      font-size: 2.5rem;
+      color: white;
+      margin-bottom: 2rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    thead {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    th, td {
+      padding: 1.25rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    th {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.85rem;
+    }
+
+    tbody tr {
+      transition: all 0.3s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(102, 126, 234, 0.05);
+      transform: scale(1.01);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Button Styles */
+    button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transition: all 0.6s ease;
+      transform: translate(-50%, -50%);
+    }
+
+    button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn-view {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-view:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .btn-edit {
+      background: linear-gradient(135deg, #27ae60, #229954);
+      color: white;
+      box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-edit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+    }
+
+    .btn-delete {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white;
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-delete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+    }
+
+    /* Modal Styles */
+    #userModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transform: scale(0.9);
+      animation: modalIn 0.3s ease forwards;
+    }
+
+    @keyframes modalIn {
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .modal-content h3 {
+      margin-bottom: 2rem;
+      color: #2c3e50;
+      font-size: 1.5rem;
+      text-align: center;
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 1rem;
+    }
+
+    .modal-content label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #555;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-content input, .modal-content select {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border: 2px solid #ecf0f1;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+
+    .modal-content select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1em;
+    }
+
+    .modal-content input:focus, .modal-content select:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .modal-content input:disabled, .modal-content select:disabled {
+      background: #e9ecef;
+      color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #ecf0f1;
+    }
+
+    .modal-footer button {
+      margin: 0;
+      padding: 0.75rem 1.5rem;
+      min-width: 100px;
+    }
+
+    /* Message Styles */
+    #msg {
+      margin-top: 2rem;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .side-nav {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .content {
+        margin-left: 0;
+        padding: 2rem 1rem;
+      }
+
+      .content h2 {
+        font-size: 2rem;
+      }
+
+      table {
+        font-size: 0.875rem;
+      }
+
+      th, td {
+        padding: 0.75rem;
+      }
+
+      .modal-content {
+        margin: 1rem;
+        padding: 2rem;
+      }
+
+      button {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Scroll Animation */
+    tbody tr {
+      opacity: 0;
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    tbody tr:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body class="admin-users-page">
+
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <div class="logo-section">
+      <img src="/assets/Ship2.jpg" class="nav-logo" alt="SCMLITE" />
+      <span class="brand-title">SCMLITE</span>
+    </div>
+  </div>
+
+  <!-- Sidebar Navigation -->
+  <div class="side-nav">
+    <ul class="nav-section">
+      <li><a href="/dashboard">🏠 Dashboard</a></li>
+      <li><a href="/create-shipment">➕ New Shipment</a></li>
+      <li><a href="/shipments" class="admin-only">📦 Shipments</a></li>
+      <li><a href="/manage-users" class="admin-only">👥 Manage Users</a></li>
+      <li><a href="/account">⚙️ Account</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <h2>👥 User Management</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+    <div id="msg"></div>
+  </div>
+
+  <!-- View/Edit Modal -->
+  <div id="userModal" style="display: none;">
+    <div class="modal-content">
+      <h3 id="modalTitle">User Info</h3>
+      <form id="userForm">
+        <input type="hidden" id="userId" />
+        <label>Username</label>
+        <input type="text" id="username" required />
+        <label>Email</label>
+        <input type="email" id="email" required />
+        <label>Role</label>
+        <select id="role" disabled>
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+        <label>Created At</label>
+        <input type="text" id="createdAt" disabled />
+        <div class="modal-footer">
+          <button type="submit" class="btn-edit" id="editBtn">Save</button>
+          <button type="button" class="btn-delete" onclick="closeModal()">Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  const tableBody = document.getElementById("userTableBody");
+  const modal = document.getElementById("userModal");
+  const form = document.getElementById("userForm");
+
+  async function loadUsers() {
+    const res = await fetch("/api/manage-users", {
+      method: "GET",
+      credentials: "include"
+    });
+
+    const users = await res.json();
+    if (!res.ok) return alert(users.detail || "Failed to fetch users");
+
+    tableBody.innerHTML = "";
+    users.forEach((user, index) => {
+      const isDefaultAdmin = user.role === "admin" && user.is_default_admin;
+      const row = `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${user.username}</td>
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td>${user.created_at?.split("T")[0]}</td>
+          <td>
+            <button class="btn-view" onclick='openModal(${JSON.stringify(user)}, false)'>View</button>
+            ${!isDefaultAdmin ? `<button class="btn-edit" onclick='openModal(${JSON.stringify(user)}, true)'>Edit</button>` : ''}
+            ${!isDefaultAdmin ? `<button class="btn-delete" onclick='deleteUser("${user.id}")'>Delete</button>` : ''}
+          </td>
+        </tr>
+      `;
+      tableBody.insertAdjacentHTML("beforeend", row);
+    });
+  }
+
+  function openModal(user, isEdit) {
+    modal.style.display = "flex";
+    document.getElementById("userId").value = user.id;
+    document.getElementById("username").value = user.username;
+    document.getElementById("email").value = user.email;
+    document.getElementById("role").value = user.role;
+    document.getElementById("createdAt").value = user.created_at?.split("T")[0] || "-";
+
+    document.getElementById("username").disabled = !isEdit;
+    document.getElementById("email").disabled = !isEdit;
+    document.getElementById("role").disabled = !isEdit;
+    document.getElementById("editBtn").style.display = isEdit ? "inline-block" : "none";
+    document.getElementById("modalTitle").textContent = isEdit ? "Edit User" : "View User";
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const id = document.getElementById("userId").value;
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const role = document.getElementById("role").value;
+
+    const res = await fetch(`/api/manage-users/${id}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email, role })
+    });
+
+    if (res.ok) {
+      closeModal();
+      loadUsers();
+    } else {
+      const err = await res.json();
+      alert(err.detail || "Update failed");
+    }
+  });
+
+  async function deleteUser(id) {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
+    const res = await fetch(`/api/manage-users/${id}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+
+    if (res.ok) {
+      loadUsers();
+    } else {
+      alert("Delete failed");
+    }
+  }
+
+  async function logout() {
+    const res = await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include"
+    });
+    if (res.ok) {
+      window.location.href = "/login";
+    } else {
+      alert("Logout failed");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadUsers);
+</script>
+
+</body>
+</html>
