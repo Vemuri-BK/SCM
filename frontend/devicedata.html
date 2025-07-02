@@ -29,20 +29,35 @@
 
     .controls {
       display: flex;
+      flex-wrap: wrap;
       justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
       margin-bottom: 15px;
     }
 
     .controls label {
-      margin-right: 10px;
       font-weight: bold;
     }
 
-    .controls select {
+    .controls select,
+    .controls input,
+    .controls button {
       padding: 6px 10px;
       border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 14px;
+    }
+
+    .controls button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .controls button:hover {
+      background-color: #357ABD;
     }
 
     .table-responsive {
@@ -76,7 +91,6 @@
       background-color: #f1f1f1;
     }
 
-    /* Top Navigation */
     .top-nav {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
@@ -109,7 +123,6 @@
       letter-spacing: 0.5px;
     }
 
-    /* Side Navigation */
     .side-nav {
       position: fixed;
       left: 0;
@@ -158,29 +171,28 @@
   </style>
 </head>
 <body class="admin-shipments-page">
-    <!-- Top Navigation -->
-    <div class="top-nav">
-        <div class="logo-section">
-            <img src="assets/Ship2.jpg" class="nav-logo" alt="SCMLITE" />
-            <span class="brand-title">SCMLITE</span>
-        </div>
-    </div>
 
-    <!-- Side Navigation -->
-    <div class="side-nav">
-        <ul class="nav-section">
-            <li><a href="/dashboard">🏠 Dashboard</a></li>
-            <li><a href="/create-shipment">➕ New Shipment</a></li>
-            <li><a href="/shipments" class="admin-only">📦 Shipments</a></li>
-            <!-- <li><a href="/my-shipments" class="user-only">📦 My Shipments</a></li> -->
-            <li><a href="/manage-users" class="admin-only">👥 Manage Users</a></li>
-            <li><a href="/account">⚙️ Account</a></li>
-            <li><a href="#" onclick="logout()">🚪 Logout</a></li>
-        </ul>
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <div class="logo-section">
+      <img src="assets/Ship2.jpg" class="nav-logo" alt="SCMLITE" />
+      <span class="brand-title">SCMLITE</span>
     </div>
-<body>
+  </div>
 
-  <div class="container">
+  <!-- Side Navigation -->
+  <div class="side-nav">
+    <ul class="nav-section">
+      <li><a href="/dashboard">🏠 Dashboard</a></li>
+      <li><a href="/create-shipment">➕ New Shipment</a></li>
+      <li><a href="/shipments" class="admin-only">📦 Shipments</a></li>
+      <li><a href="/manage-users" class="admin-only">👥 Manage Users</a></li>
+      <li><a href="/account">⚙️ Account</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
+  </div>
+
+  <div class="container" style="margin-left: 240px;">
     <div class="device-streaming">
       <h2>📡 Device Streaming Data</h2>
 
@@ -192,6 +204,10 @@
           <option value="50">50</option>
           <option value="100">100</option>
         </select>
+
+        <label for="deviceFilter">Filter by Device ID:</label>
+        <input type="text" id="deviceFilter" placeholder="Enter Device ID" />
+        <button onclick="fetchDeviceData()">Filter</button>
       </div>
 
       <div class="table-responsive">
@@ -215,62 +231,63 @@
   </div>
 
   <script>
-  const limitSelect = document.getElementById("limitSelect");
+    const limitSelect = document.getElementById("limitSelect");
 
-  async function fetchDeviceData() {
-    try {
-      const response = await fetch("/api/devicedata", {
-        method: "GET",
-        credentials: "include"
-      });
-
-      if (response.status === 401 || response.status === 403) {
-        window.location.href = "/login"; // Redirect if not authorized
-        return;
-      }
-
-      if (!response.ok) throw new Error("Network response was not ok");
-
-      const data = await response.json();
+    async function fetchDeviceData() {
       const limit = parseInt(limitSelect.value);
-      const limitedData = data.slice(0, limit);
+      const deviceFilter = document.getElementById("deviceFilter").value;
 
-      const tableBody = document.getElementById("deviceTableBody");
-      const errorMsg = document.getElementById("errorMessage");
-      tableBody.innerHTML = ""; // Clear old rows
-      errorMsg.innerText = "";
+      try {
+        let url = `/api/devicedata?limit=${limit}`;
+        if (deviceFilter.trim() !== "") {
+          url += `&device_id=${encodeURIComponent(deviceFilter.trim())}`;
+        }
 
-      if (limitedData.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5">No data found</td></tr>`;
-        return;
+        const response = await fetch(url, {
+          method: "GET",
+          credentials: "include"
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          window.location.href = "/login";
+          return;
+        }
+
+        if (!response.ok) throw new Error("Network response was not ok");
+
+        const data = await response.json();
+        const tableBody = document.getElementById("deviceTableBody");
+        const errorMsg = document.getElementById("errorMessage");
+        tableBody.innerHTML = "";
+        errorMsg.innerText = "";
+
+        if (data.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="5">No data found</td></tr>`;
+          return;
+        }
+
+        data.forEach(item => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${item.Battery_Level ?? "N/A"}</td>
+            <td>${item.Device_ID ?? "N/A"}</td>
+            <td>${item.First_Sensor_temperature ?? "N/A"}</td>
+            <td>${item.Route_From ?? "N/A"}</td>
+            <td>${item.Route_To ?? "N/A"}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      } catch (err) {
+        document.getElementById("errorMessage").innerText = "⚠️ Failed to load data.";
+        console.error("Fetch error:", err);
       }
-
-      limitedData.forEach(item => {
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-          <td>${item.Battery_Level ?? "N/A"}</td>
-          <td>${item.Device_ID ?? "N/A"}</td>
-          <td>${item.First_Sensor_temperature ?? "N/A"}</td>
-          <td>${item.Route_From ?? "N/A"}</td>
-          <td>${item.Route_To ?? "N/A"}</td>
-        `;
-
-        tableBody.appendChild(row);
-      });
-    } catch (err) {
-      document.getElementById("errorMessage").innerText = "⚠️ Failed to load data.";
-      console.error("Fetch error:", err);
     }
-  }
 
-  // Event listener to refetch on dropdown change
-  limitSelect.addEventListener("change", fetchDeviceData);
-
-  fetchDeviceData();                   // Initial fetch
-  setInterval(fetchDeviceData, 10000); // Refresh every 10 seconds
-</script>
-
+    // Auto fetch initially and every 10s
+    limitSelect.addEventListener("change", fetchDeviceData);
+    fetchDeviceData();
+    setInterval(fetchDeviceData, 10000);
+  </script>
 
 </body>
 </html>
