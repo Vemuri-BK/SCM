@@ -373,18 +373,24 @@
             <label>Route Details</label>
             <select name="route" required>
               <option value="">Select Route</option>
-              <option value="north">North</option>
-              <option value="south">South</option>
-              <option value="east">East</option>
-              <option value="west">West</option>
+              <option value="London,UK - Bengaluru,India">London,UK-Bengaluru,India</option>
+              <option value="Chennai,India to London,UK">Chennai,India-London,UK</option>
+              <option value="Bengaluru,India to Newyork,USA">Bengaluru,India-Newyork,USA</option>
+              <option value="Bengaluru,India to London,UK">Bengaluru,India-London,UK</option>
             </select>
             
-            <label>Device</label>
+            <!--<label>Device</label>
             <select name="device" required>
               <option value="">Select Device</option>
               <option value="sensor-a">Sensor A</option>
               <option value="sensor-b">Sensor B</option>
             </select>
+            Modified below
+            -->
+            
+
+            <label>Device</label>  
+            <input type="text" name="device" required />
             
             <label>PO Number</label>
             <input type="text" name="po_number" required />

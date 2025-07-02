@@ -417,6 +417,11 @@
     <div class="content">
         <div class="page-wrapper admin-shipments-wrapper">
             <h2>📦 Shipment Management Dashboard</h2>
+            <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
+              <input type="text" id="searchByCreator" placeholder="Search by creator name..." style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #ccc; width: 300px;" />
+              <button onclick="searchShipments()" class="btn-edit" style="padding: 0.5rem 1.2rem;">🔍 Search</button>
+              <button onclick="resetSearch()" class="btn-delete" style="padding: 0.5rem 1.2rem;">Reset</button>
+            </div>
             <table id="shipments-table">
                 <thead>
                     <tr>
@@ -479,177 +484,193 @@
     </div>
 
     <script>
-    const tableBody = document.getElementById("shipment-body");
-    const modal = document.getElementById("editModal");
-    const msgDiv = document.getElementById("msg");
+  const tableBody = document.getElementById("shipment-body");
+  const modal = document.getElementById("editModal");
+  const msgDiv = document.getElementById("msg");
 
-    function showMessage(message, type = 'success') {
-      msgDiv.textContent = message;
-      msgDiv.className = type;
-      msgDiv.style.display = 'block';
-      setTimeout(() => {
-        msgDiv.style.display = 'none';
-      }, 3000);
+  function showMessage(message, type = 'success') {
+    msgDiv.textContent = message;
+    msgDiv.className = type;
+    msgDiv.style.display = 'block';
+    setTimeout(() => {
+      msgDiv.style.display = 'none';
+    }, 3000);
+  }
+
+  function formatStatus(status) {
+    const statusClass = status.toLowerCase().replace(' ', '-');
+    return `<span class="status-badge status-${statusClass}">${status}</span>`;
+  }
+
+  async function fetchShipments(creator = "") {
+    try {
+      tableBody.innerHTML = '<tr><td colspan="9" class="loading">Loading shipments...</td></tr>';
+
+      let url = "/api/shipments";
+      if (creator) {
+        url += `?created_by=${encodeURIComponent(creator)}`;
+      }
+
+      const res = await fetch(url, {
+        method: "GET",
+        credentials: "include"
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        tableBody.innerHTML = "";
+
+        if (data.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="9" class="empty-state">
+                <h3>No Shipments Found</h3>
+                <p>No shipments match your search criteria.</p>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        data.forEach((shipment, index) => {
+          const row = `
+            <tr>
+              <td><strong>${index + 1}</strong></td>
+              <td><strong>${shipment.shipment_number}</strong></td>
+              <td>${shipment.route}</td>
+              <td>${shipment.goods_type}</td>
+              <td>${shipment.device}</td>
+              <td>${shipment.delivery_date?.split("T")[0] || 'N/A'}</td>
+              <td>${formatStatus(shipment.status)}</td>
+              <td>${shipment.created_by}</td>
+              <td>
+                <button class="btn-edit" onclick='openEdit(${JSON.stringify(shipment)})'>Edit</button>
+                <button class="btn-delete" onclick='deleteShipment("${shipment.id}")'>Delete</button>
+              </td>
+            </tr>
+          `;
+          tableBody.insertAdjacentHTML("beforeend", row);
+        });
+
+        showMessage(`${data.length} shipments loaded successfully`);
+      } else {
+        tableBody.innerHTML = '<tr><td colspan="9" class="empty-state">Failed to load shipments</td></tr>';
+        showMessage(data.detail || "Failed to load shipments", 'error');
+      }
+    } catch (error) {
+      tableBody.innerHTML = '<tr><td colspan="9" class="empty-state">Error loading shipments</td></tr>';
+      showMessage("Network error occurred", 'error');
     }
+  }
 
-    function formatStatus(status) {
-      const statusClass = status.toLowerCase().replace(' ', '-');
-      return `<span class="status-badge status-${statusClass}">${status}</span>`;
+  function searchShipments() {
+    const creator = document.getElementById("searchByCreator").value.trim();
+    fetchShipments(creator);
+  }
+
+  function resetSearch() {
+    document.getElementById("searchByCreator").value = "";
+    fetchShipments();
+  }
+
+  function openEdit(s) {
+    document.getElementById("editId").value = s.id;
+    document.getElementById("editStatus").value = s.status;
+    document.getElementById("editRoute").value = s.route;
+    document.getElementById("editDescription").value = s.description || '';
+    modal.style.display = "flex";
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+    document.getElementById("editForm").reset();
+  }
+
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) {
+      closeModal();
     }
+  });
 
-    async function fetchShipments() {
+  document.getElementById("editForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const id = document.getElementById("editId").value;
+    const status = document.getElementById("editStatus").value;
+    const route = document.getElementById("editRoute").value;
+    const description = document.getElementById("editDescription").value;
+
+    try {
+      const res = await fetch(`/api/shipments/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({ status, route, description }),
+      });
+
+      if (res.ok) {
+        closeModal();
+        showMessage("Shipment updated successfully");
+        fetchShipments();
+      } else {
+        const error = await res.json();
+        showMessage(error.detail || "Failed to update shipment", 'error');
+      }
+    } catch (error) {
+      showMessage("Network error occurred", 'error');
+    }
+  });
+
+  async function deleteShipment(id) {
+    if (!confirm("Are you sure you want to delete this shipment? This action cannot be undone.")) return;
+
+    try {
+      const res = await fetch(`/api/shipments/${id}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+
+      if (res.ok) {
+        showMessage("Shipment deleted successfully");
+        fetchShipments();
+      } else {
+        const error = await res.json();
+        showMessage(error.detail || "Delete failed", 'error');
+      }
+    } catch (error) {
+      showMessage("Network error occurred", 'error');
+    }
+  }
+
+  async function logout() {
+    if (confirm("Are you sure you want to logout?")) {
       try {
-        tableBody.innerHTML = '<tr><td colspan="9" class="loading">Loading shipments...</td></tr>';
-
-        const res = await fetch("/api/shipments", {
-          method: "GET",
+        const res = await fetch("/api/logout", {
+          method: "POST",
           credentials: "include"
         });
-        const data = await res.json();
 
         if (res.ok) {
-          tableBody.innerHTML = "";
-
-          if (data.length === 0) {
-            tableBody.innerHTML = `
-              <tr>
-                <td colspan="9" class="empty-state">
-                  <h3>No Shipments Found</h3>
-                  <p>No shipments have been created yet.</p>
-                </td>
-              </tr>
-            `;
-            return;
-          }
-
-          data.forEach((shipment, index) => {
-            const row = `
-              <tr>
-                <td><strong>${index + 1}</strong></td>
-                <td><strong>${shipment.shipment_number}</strong></td>
-                <td>${shipment.route}</td>
-                <td>${shipment.goods_type}</td>
-                <td>${shipment.device}</td>
-                <td>${shipment.delivery_date?.split("T")[0] || 'N/A'}</td>
-                <td>${formatStatus(shipment.status)}</td>
-                <td>${shipment.created_by}</td>
-                <td>
-                  <button class="btn-edit" onclick='openEdit(${JSON.stringify(shipment)})'>Edit</button>
-                  <button class="btn-delete" onclick='deleteShipment("${shipment.id}")'>Delete</button>
-                </td>
-              </tr>
-            `;
-            tableBody.insertAdjacentHTML("beforeend", row);
-          });
-
-          showMessage(`${data.length} shipments loaded successfully`);
+          window.location.href = "/login";
         } else {
-          tableBody.innerHTML = '<tr><td colspan="9" class="empty-state">Failed to load shipments</td></tr>';
-          showMessage(data.detail || "Failed to load shipments", 'error');
+          alert("Logout failed");
         }
-      } catch (error) {
-        tableBody.innerHTML = '<tr><td colspan="9" class="empty-state">Error loading shipments</td></tr>';
-        showMessage("Network error occurred", 'error');
+      } catch (err) {
+        alert("Network error");
       }
     }
+  }
 
-    function openEdit(s) {
-      document.getElementById("editId").value = s.id;
-      document.getElementById("editStatus").value = s.status;
-      document.getElementById("editRoute").value = s.route;
-      document.getElementById("editDescription").value = s.description || '';
-      modal.style.display = "flex";
+  document.addEventListener('DOMContentLoaded', () => fetchShipments());
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.style.display === 'flex') {
+      closeModal();
     }
+  });
+</script>
 
-    function closeModal() {
-      modal.style.display = "none";
-      document.getElementById("editForm").reset();
-    }
-
-    modal.addEventListener('click', function(e) {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
-
-    document.getElementById("editForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const id = document.getElementById("editId").value;
-      const status = document.getElementById("editStatus").value;
-      const route = document.getElementById("editRoute").value;
-      const description = document.getElementById("editDescription").value;
-
-      try {
-        const res = await fetch(`/api/shipments/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: "include",
-          body: JSON.stringify({ status, route, description }),
-        });
-
-        if (res.ok) {
-          closeModal();
-          showMessage("Shipment updated successfully");
-          fetchShipments();
-        } else {
-          const error = await res.json();
-          showMessage(error.detail || "Failed to update shipment", 'error');
-        }
-      } catch (error) {
-        showMessage("Network error occurred", 'error');
-      }
-    });
-
-    async function deleteShipment(id) {
-      if (!confirm("Are you sure you want to delete this shipment? This action cannot be undone.")) return;
-
-      try {
-        const res = await fetch(`/api/shipments/${id}`, {
-          method: "DELETE",
-          credentials: "include"
-        });
-
-        if (res.ok) {
-          showMessage("Shipment deleted successfully");
-          fetchShipments();
-        } else {
-          const error = await res.json();
-          showMessage(error.detail || "Delete failed", 'error');
-        }
-      } catch (error) {
-        showMessage("Network error occurred", 'error');
-      }
-    }
-
-    async function logout() {
-      if (confirm("Are you sure you want to logout?")) {
-        try {
-          const res = await fetch("/api/logout", {
-            method: "POST",
-            credentials: "include"
-          });
-
-          if (res.ok) {
-            window.location.href = "/login";
-          } else {
-            alert("Logout failed");
-          }
-        } catch (err) {
-          alert("Network error");
-        }
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', fetchShipments);
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modal.style.display === 'flex') {
-        closeModal();
-      }
-    });
-  </script>
 </body>
 </html>
